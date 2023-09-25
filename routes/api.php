@@ -10,3 +10,4 @@ use App\Http\Responses\ComprasController;
 Route::apiResource('clientes', ClienteController::class);
 Route::apiResource('categorias', CategoriaController::class);
 Route::apiResource('compras', ComprasController::class);
+Route::apiResource('productos',ProductoController::class);

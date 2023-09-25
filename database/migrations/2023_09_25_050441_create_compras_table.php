@@ -13,9 +13,17 @@ return new class extends Migration
     {
         Schema::create('compras', function (Blueprint $table) {
             $table->id();
-            $table->double('subtotal')->unique();
-            $table->double('total')->unique();
+            $table->unsignedBigInteger('compra_id');
+            $table->unsignedBigInteger('producto_id');
+            $table->decimal('precio',8,2);
+            $table->integer('cantidad');
+            $table->decimal('subtotal',8,2)->unique();
+            $table->decimal('total',8,2)->unique();
             $table->timestamps();
+            
+
+            $table->foreign('compra_id')->references('id')->on('compras');
+            $table->foreign('producto_id')->references('id')->on('productos');
         });
     }
 
