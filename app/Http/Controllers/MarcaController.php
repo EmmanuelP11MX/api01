@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Responses\ApiResponse;
+use Exception;
 use App\Models\Marca;
 use Illuminate\Http\Request;
-use Exception;
 use Illuminate\Validation\Rule;
+use App\Http\Responses\ApiResponse;
 use Illuminate\Validation\ValidationException;
-use Illuminateuse\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class MarcaController extends Controller
 {
