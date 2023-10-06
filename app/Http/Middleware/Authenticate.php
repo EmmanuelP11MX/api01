@@ -17,7 +17,7 @@ class Authenticate extends Middleware
                 response()->json([
                     'status' => 401,
                     'message' => 'Unauthorized'
-                ], 400)
+                ], 401)
             );
         }
         if (!$request->expectsJson()) {
@@ -27,7 +27,7 @@ class Authenticate extends Middleware
                 response()->json([
                     'status' => 401,
                     'message' => 'Unauthorized'
-                ], 400)
+                ], 401)
             );
         }
     }

@@ -2,22 +2,23 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Cache\Repository;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+    public function register(Request  $request)
     {
-        $validator=Validator::make(
+        $validator = Validator::make(
             $request->all(),
             [
-                'name'=>'required',
-                'email'=>'required',
-                'password'=>'required'
+                'name' => 'required',
+                'email' => 'required',
+                'password' => 'required'
             ]
         );
         if ($validator->fails()) {
@@ -33,22 +34,21 @@ class AuthController extends Controller
         $user->password = bcrypt($request->password);
         $user->save();
 
-        $token=$user->createToken('MiTokenDeAplicacion')->plainTextToken;
+        $token = $user->createToken('MyAppToken')->plainTextToken;
         return response()->json([
             'status' => true,
-            'message' => 'Usuario creado con Exito',
+            'message' => 'Usuario creado',
             'user' => $user,
-            'toke' => $token,
+            'toke' => $token
         ]);
     }
-
     public function login(Request $request)
     {
-        $validator=Validator::make(
+        $validator = Validator::make(
             $request->all(),
             [
-                'email'=>'required',
-                'password'=>'required'
+                'email' => 'required',
+                'password' => 'required'
             ]
         );
         if ($validator->fails()) {
@@ -64,11 +64,11 @@ class AuthController extends Controller
                 'password' => $request->password
             ]
         )) {
-            $user=Auth::user();
-            $token=$user->createToken('MiTokenDeAplicacion')->plainTextToken;
-            $minutos=1440;
-            $fechaExpira=now()->addMinute($minutos);
-            $fecha_expira=date('M d, Y H:i A', strtotime($fechaExpira));
+            $user = Auth::user();
+            $token = $user->createToken('MyAppToken')->plainTextToken;
+            $minutos = 1440;
+            $fechaExpira = now()->addMinute($minutos);
+            $fecha_expira = date('M d, Y H:i A', strtotime($fechaExpira));
             return response()->json([
                 'status' => true,
                 'message' => 'Login successful',

@@ -7,7 +7,7 @@ use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Responses\ComprasController;
 
-Route::apiResource('auth:sanctum')->group(
+Route::middleware('auth:sanctum')->group(
     function (){
         Route::apiResource('clientes', ClienteController::class);
         Route::apiResource('categorias', CategoriaController::class);
@@ -19,7 +19,7 @@ Route::apiResource('auth:sanctum')->group(
 Route::prefix('auth')->controller(AuthController::class)->group(
     function () {
         Route::post('register', 'register');
-        Route::post('login', 'logion');
+        Route::post('login', 'login');
     }
 );
 
