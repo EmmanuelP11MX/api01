@@ -1,11 +1,13 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\CategoriaController;
-use App\Http\Responses\ComprasController;
+use App\Http\Controllers\MarcaController;
+use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\ComprasController;
+use App\Http\Controllers\Api\AuthController;
 
 Route::middleware('auth:sanctum')->group(
     function (){
@@ -13,6 +15,7 @@ Route::middleware('auth:sanctum')->group(
         Route::apiResource('categorias', CategoriaController::class);
         Route::apiResource('compras', ComprasController::class);
         Route::apiResource('productos',ProductoController::class);
+        Route::apiResource('marcas',MarcaController::class);
     }
 );
 

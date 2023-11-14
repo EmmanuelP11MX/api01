@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Responses\ApiResponse;
-use App\Models\Producto;
-use Iluminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
-use Iluminate\Validation\ValidationException;
 use Exception;
+use App\Models\Producto;
+use Illuminate\Http\Request;
+use App\Http\Responses\ApiResponse;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ProductoController extends Controller
 {
@@ -28,13 +28,12 @@ class ProductoController extends Controller
                 'nombre' => 'required|unique:productos',
                 'precio' => 'required|numeric|between:0,999999.99',
                 'cantidad_disponible' => 'required|integer',
-                'categoria_id' => 'required|exists : categorias,id',
-                'marca_id' => 'required|exists:marcas, id',
+                'categoria_id' => 'required|exists:categorias,id',
+                'marca_id' => 'required|exists:marcas,id',
                 ]);
                 $producto = Producto::create($request->all());
                 return ApiResponse::success('Producto creado exitosamente',201,$producto);
-                         
-        } catch (ValidationException $e) {
+        } catch(ValidationException $e) {
             $errors = $e -> validator->errors()->toArray();
             if(isset($errors['categoria_id'])){
                 $errors['categoria'] = $errors['categoria_id'];
@@ -63,7 +62,7 @@ class ProductoController extends Controller
         try {
             $producto = Producto::findOrFail($id);
             $request->validate([
-            'nombre' => 'required|unique¡productos,nombre,'.$producto->id,
+            'nombre' => 'required|unique:productos,nombre,'.$producto->id,
             'precio' => 'required|numeric|between:0,999999.99',
             'cantidad_disponible' => 'required|integer',
             'categoria_id' => 'required|exists:categorias,id',
