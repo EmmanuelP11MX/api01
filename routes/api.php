@@ -18,7 +18,12 @@ Route::middleware('auth:sanctum')->group(
         Route::apiResource('marcas',MarcaController::class);
     }
 );
-
+//Saltamos la autenticación
+Route::apiResource('clientes', ClienteController::class);
+Route::apiResource('categorias', CategoriaController::class);
+Route::apiResource('compras', ComprasController::class);
+Route::apiResource('productos',ProductoController::class);
+Route::apiResource('marcas',MarcaController::class);
 Route::prefix('auth')->controller(AuthController::class)->group(
     function () {
         Route::post('register', 'register');
