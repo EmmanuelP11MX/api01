@@ -4,26 +4,23 @@ namespace App\Http\Responses;
 
 class ApiResponse
 {
-    public static function success($data =[], $code = 200, $message = 'Success')
+    public static function success( $message = 'Success', $statusCode = 200 , $data = [])
     {
-       return response()->json([
-           'data' => $data,
-              'message' => $message,
-                'code' => $code,
-                    'error' => false
-       ], $code);
+        return response()->json([
+            'message' => $message,
+            'statusCode' => $statusCode,
+            'error' => false,
+            'data' => $data,
+        ], $statusCode);
     }
 
-    public static function error($data =[], $code = 500, $message = 'Error')
+    public static function error($message = 'Error', $statusCode = 500, $data = [] )
     {
-       return response()->json([
-           'data' => $data,
-              'message' => $message,
-                'code' => $code,
-                    'error' => true
-       ], $code);
-    } 
+        return response()->json([
+            'message' => $message,
+            'statusCode' => $statusCode,
+            'error' => true,
+            'data' => $data,
+        ], $statusCode);
+    }
 }
-
-
-?>

@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('compras', function (Blueprint $table) {
-            $table->id();
-            $table->decimal('subtotal', 8, 2);
-            $table->decimal('total', 8, 2);
-            $table->timestamps();
+        Schema::table('marcas', function (Blueprint $table) {
+            $table->foreign('estado_solicitud_id')->references('id')->on('estado_solicitudes');
         });
     }
 
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('compras');
+        Schema::table('marcas', function (Blueprint $table) {
+            $table->dropForeign(['estado_solicitud_id']);
+        });
     }
 };

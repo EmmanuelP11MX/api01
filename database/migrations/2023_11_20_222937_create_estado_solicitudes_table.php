@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('compras', function (Blueprint $table) {
+        Schema::create('estado_solicitudes', function (Blueprint $table) {
             $table->id();
-            $table->decimal('subtotal', 8, 2);
-            $table->decimal('total', 8, 2);
+            $table->string('estado_solicitudes');
             $table->timestamps();
         });
     }
@@ -24,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('compras');
+        Schema::dropIfExists('estado_solicitudes');
     }
 };

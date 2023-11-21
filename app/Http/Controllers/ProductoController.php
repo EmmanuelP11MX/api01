@@ -1,82 +1,99 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Producto;
-use App\Http\Responses\ApiResponse;
-use Exception;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
 
+use Exception;
+use App\Models\Producto;
 use Illuminate\Http\Request;
+use App\Http\Responses\ApiResponse;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ProductoController extends Controller
-{  public function index()
+{
+    public function index()
     {
         try {
-            $producto = producto::all();
-            return ApiResponse::success('producto',200, $producto);
+            $productos = Producto::with('marca','categoria')->get();
+            return ApiResponse::success('Lista de productos',200,$productos);
         } catch (Exception $e) {
-            return ApiResponse::error('Error al obtener loss productos'.$e->getMessage(), 500);
+            return ApiResponse::error('Error al obtener la lista de productos: '.$e->getMessage(),500);
         }
-
     }
 
     public function store(Request $request)
     {
         try {
             $request->validate([
-                'nombre' => 'required|unique:producto'
-            ]);
-            $producto = producto::create($request->all());
-
-            return ApiResponse::success('producto creado', 201, $producto);
-        } catch (ValidationException $e) {
-            return ApiResponse::error('Error al crear al encontrar el producto'.$e->getMessage(), 422);
+                'nombre' => 'required|unique:productos',
+                'precio' => 'required|numeric|between:0,999999.99',
+                'cantidad_disponible' => 'required|integer',
+                'categoria_id' => 'required|exists:categorias,id',
+                'marca_id' => 'required|exists:marcas,id',
+                ]);
+                $producto = Producto::create($request->all());
+                return ApiResponse::success('Producto creado exitosamente',201,$producto);
+        } catch(ValidationException $e) {
+            $errors = $e -> validator->errors()->toArray();
+            if(isset($errors['categoria_id'])){
+                $errors['categoria'] = $errors['categoria_id'];
+                unset($errors['categoria_id']);
+            }
+            if(isset($errors['marca_id'])){
+                $errors['marca'] = $errors['marca_id'];
+                unset($errors['marca_id']);
+            }
+            return ApiResponse::error('Errores de validacion: ',422,$errors);
         }
-       
     }
 
     public function show($id)
     {
         try {
-            $producto = producto::findOrFail($id);
-            return ApiResponse::success('Producto encontrado', 200, $producto);
+            $producto = Producto::with('marca','categoria')->findOrFail($id);
+            return ApiResponse::success('Producto obtenido exitosamente',200,$producto); 
         } catch (ModelNotFoundException $e) {
-            return ApiResponse::error('Error al obtener el producto'.$e->getMessage(), 404);
-        }
+            return ApiResponse::error('Producto no encontrado',404);
+        }            
     }
 
     public function update(Request $request, $id)
     {
-       try {
-            $categoria = producto::findOrFail($id);
-            $categoria->validate([
-                'subtotal' => ['required',Rule::unique('producto')->ignore($categoria->id)]
+        try {
+            $producto = Producto::findOrFail($id);
+            $request->validate([
+            'nombre' => 'required|unique:productos,nombre,'.$producto->id,
+            'precio' => 'required|numeric|between:0,999999.99',
+            'cantidad_disponible' => 'required|integer',
+            'categoria_id' => 'required|exists:categorias,id',
+            'marca_id' => 'required|exists:marcas,id',
             ]);
-            return ApiResponse::success('Compra actualizada', 200, $categoria);
-       } catch (ModelNotFoundException $e) {
-            return ApiResponse::error('Error al actualizar la compra'.$e->getMessage(), 404);
-       }catch (Exception $e) {
-            return ApiResponse::error('Error al actualizar la compra'.$e->getMessage(), 422);
-       }
+            $producto->update($request->all());
+            return ApiResponse::success('Producto actualizado exitosamente',200,$producto); 
+        } catch (ValidationException $e) {
+            $errors = $e -> validator->errors()->toArray();
+            if(isset($errors['categoria_id'])){
+                $errors['categoria'] = $errors['categoria_id'];
+                unset($errors['categoria_id']);
+            }
+            if(isset($errors['marca_id'])){
+                $errors['marca'] = $errors['marca_id'];
+                unset($errors['marca_id']);
+            }
+            return ApiResponse::error('Errores de validacion: ',422,$errors);
+        } catch (ModelNotFoundException $e)  {
+            return ApiResponse::error('Producto no encontrado',404);
+        }                    
     }
 
     public function destroy($id)
     {
         try {
-            $categoria = producto::findOrFail($id);
-            $categoria->delete();
-            return ApiResponse::success('Compra eliminada', 200, $categoria);
+            $producto = Producto::findOrFail($id);
+            $producto -> delete();
+            return ApiResponse::success('Producto eliminado exitosamente',200);
         } catch (ModelNotFoundException $e) {
-            return ApiResponse::error('Error al eliminar la compra'.$e->getMessage(), 404);
-        } 
+            return ApiResponse::error('Producto no encontrado',404);
+        }
     }
-
-    public function productosPorCategoria($id)
-    {
-        $categoria = producto::find($id);
-        return $categoria->productos;
-    }
-    //
 }
