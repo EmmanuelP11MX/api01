@@ -16,6 +16,7 @@ Route::middleware('auth:sanctum')->group(
         Route::apiResource('compras', ComprasController::class);
         Route::apiResource('productos',ProductoController::class);
         Route::apiResource('marcas',MarcaController::class);
+        Route::post('auth/cambio-password', [AuthController::class, 'changePassword']);
     }
 );
 //Saltamos la autenticación
