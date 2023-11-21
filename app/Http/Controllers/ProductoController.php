@@ -26,6 +26,7 @@ class ProductoController extends Controller
         try {
             $request->validate([
                 'nombre' => 'required|unique:productos',
+                'description' => 'required|unique:productos',
                 'precio' => 'required|numeric|between:0,999999.99',
                 'cantidad_disponible' => 'required|integer',
                 'categoria_id' => 'required|exists:categorias,id',
