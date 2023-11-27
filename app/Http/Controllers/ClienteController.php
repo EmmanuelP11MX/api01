@@ -2,73 +2,84 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Models\Cliente;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use App\Http\Responses\ApiResponse;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ClienteController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        return Cliente::all();
+        try {
+            $clientes = Cliente::all();
+            return ApiResponse::success('Lista de clientes', 200, $clientes);
+        } catch (Exception $e) {
+            return ApiResponse::error('Error al obtener los clientes' . $e->getMessage(), 500);
+        }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $request->validate([
-            'nombre' => 'required',
-            'apellidos' => 'required'
-        ]);
-        $cliente = new Cliente;
-        $cliente->nombre = $request->nombre;
-        $cliente->apellidos = $request->apellidos;
-        $cliente->save();
+        try {
+            $request->validate([
+                'nombre' => 'required',
+                'apellidos' => 'required'
+            ]);
+            $cliente = Cliente::create($request->all());
 
-        return $cliente;
+            return ApiResponse::success('Cliente creado', 201, $cliente);
+        } catch (ValidationException $e) {
+            return ApiResponse::error('Error al crear el cliente' . $e->getMessage(), 422);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Cliente $cliente)
+    public function show($id)
     {
-        return $cliente;
+        try {
+            $cliente = Cliente::findOrFail($id);
+            return ApiResponse::success('Cliente encontrado', 200, $cliente);
+        } catch (ModelNotFoundException $e) {
+            return ApiResponse::error('Error al obtener el cliente' . $e->getMessage(), 404);
+        }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Cliente $cliente)
+    public function update(Request $request, $id)
     {
-        $request->validate([
-            'nombre' => 'required',
-            'apellidos' => 'required'
-        ]);
-        $cliente = new Cliente;
-        $cliente->nombre = $request->nombre;
-        $cliente->apellidos = $request->apellidos;
-        $cliente->update();
-
-        return $cliente;
+        try {
+            $cliente = Cliente::findOrFail($id);
+            $request->validate([
+                'nombre' => 'required',
+                'apellidos' => 'required',
+                'nombre' => ['required', Rule::unique('clientes')->ignore($cliente->id)]
+            ]);
+            $cliente->update($request->all());
+            return ApiResponse::success('Cliente actualizado', 200, $cliente);
+        } catch (ModelNotFoundException $e) {
+            return ApiResponse::error('Error al actualizar el cliente' . $e->getMessage(), 404);
+        } catch (Exception $e) {
+            return ApiResponse::error('Error al actualizar el cliente' . $e->getMessage(), 422);
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
-        $cliente = Cliente::find($id);
-        if (is_null($cliente)) 
-        {
-            return response()->json('No se puede realizar correctamente la operación', 404);
+        try {
+            $cliente = Cliente::findOrFail($id);
+            $cliente->delete();
+            return ApiResponse::success('Cliente eliminado', 200, $cliente);
+        } catch (ModelNotFoundException $e) {
+            return ApiResponse::error('Error al eliminar el cliente' . $e->getMessage(), 404);
         }
-        
-        $cliente->delete();
-        return response()->noContent();
+    }
+
+    // Puedes mantener esta función si los productos relacionados a un cliente son necesarios.
+    public function productosPorCliente($id)
+    {
+        $cliente = Cliente::find($id);
+        return $cliente->productos;
     }
 }
