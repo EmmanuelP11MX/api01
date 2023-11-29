@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
-use App\Models\Compras;
+use App\Models\Compra;
 use App\Models\Producto;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -12,15 +12,15 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-class ComprasController extends Controller
+class CompraController extends Controller
 {
     public function index()
     {
         try {
-            $compras = Compras::all();
+            $compras = Compra::all();
             return ApiResponse::success('compras realizadas', 200, $compras);
         } catch (Exception $e) {
-            return ApiResponse::error('Error al obtener las comprass' . $e->getMessage(), 500);
+            return ApiResponse::error('Error al obtener las compras' . $e->getMessage(), 500);
         }
     }
 
@@ -29,13 +29,13 @@ class ComprasController extends Controller
         try {
             $productos = $request->input('productos');
             if (empty($productos)) {
-                return ApiResponse::error('No se proporcionaron productos', 400);
+                return ApiResponse::error('No se proporcionaron productos', 400); 
             }
 
             $validator = Validator::make($request->all(),[
                 'productos' => 'required|array',
-                'productos.*.productos_id' => 'required|integer|exists:productos,id',
-                'productos.*.cantidad' => 'requiered|integer|min:1'
+                'productos.*.producto_id' => 'required|integer|exists:productos,id',
+                'productos.*.cantidad' => 'required|integer|min:1'
             ]);
 
             if ($validator->fails()) {
@@ -62,11 +62,11 @@ class ComprasController extends Controller
                     return ApiResponse::error('El Producto no tiene suficiente cantidad disponible',404);
                 }
 
-                $productoB->cantidad_disponible = $productoB->cantidad_disponible - $producto['cantidad'];
+                $productoB->cantidad_disponible -= $producto['cantidad'];
                 $productoB->save();
 
                 $subtotal = $productoB->precio * $producto['cantidad'];
-                $totalPagar = $totalPagar + $subtotal;
+                $totalPagar += $subtotal;
 
                 $compraItems[] = [
                     'producto_id' => $productoB->id,
@@ -76,10 +76,11 @@ class ComprasController extends Controller
                 ];
             }
 
-            $compra = Compras::create([
+            $compra = new Compra([
                 'subtotal' => $totalPagar,
-                'total' => $totalPagar
+                'total' => $totalPagar,
             ]);
+            $compra->save();
 
             $compra->productos()->attach($compraItems);
 
@@ -87,13 +88,15 @@ class ComprasController extends Controller
 
         } catch (QueryException $e) {
             return ApiResponse::success('Error en la consulta de la BD',500);
-        } 
+        } catch (Exception $e) {
+            return ApiResponse::error('Error Ineseperado', 500);
+        }
     }
 
     public function show($id)
     {
         try {
-            $compras = Compras::findOrFail($id);
+            $compras = Compra::findOrFail($id);
             return ApiResponse::success('Compra encontrada', 200, $compras);
         } catch (ModelNotFoundException $e) {
             return ApiResponse::error('Error al obtener la compra' . $e->getMessage(), 404);
@@ -103,7 +106,7 @@ class ComprasController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $categoria = Compras::findOrFail($id);
+            $categoria = Compra::findOrFail($id);
             $categoria->validate([
                 'subtotal' => ['required', Rule::unique('compras')->ignore($categoria->id)]
             ]);
@@ -116,7 +119,7 @@ class ComprasController extends Controller
     public function destroy($id)
     {
         try {
-            $categoria = Compras::findOrFail($id);
+            $categoria = Compra::findOrFail($id);
             $categoria->delete();
             return ApiResponse::success('Compra eliminada', 200, $categoria);
         } catch (ModelNotFoundException $e) {
@@ -126,7 +129,7 @@ class ComprasController extends Controller
 
     public function productosPorCategoria($id)
     {
-        $categoria = Compras::find($id);
+        $categoria = Compra::find($id);
         return $categoria->productos;
     }
     //

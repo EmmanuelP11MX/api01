@@ -13,16 +13,19 @@ class Producto extends Model
         'nombre','descripcion','precio','cantidad_disponible','categoria_id','marca_id'
     ];
 
-    public function categoria(){
+    public function categoria()
+    {
         return $this->belongsTo(Categoria::class);
     }
 
-    public function marca(){
+    public function marca()
+    {
         return $this->belongsTo(Marca::class);
     }
 
-    public function compras(){
-        return $this->belongsToMany(Compra::class)->withPivot('precio','cantidad','subtotal')->withTimestamps;
+    public function compras()
+    {
+        return $this->belongsToMany(Compra::class)->withPivot('precio','cantidad','subtotal')->withTimestamps();
     }
 }
 
